@@ -13,7 +13,7 @@ type LamportClock struct {
 	mu   sync.Mutex
 }
 
-func (lc *LamportClock) IncrementClock() int {
+func (lc *LamportClock) Increment() int {
 	lc.mu.Lock()
 	lc.time++
 	newT := lc.time
@@ -21,7 +21,7 @@ func (lc *LamportClock) IncrementClock() int {
 	return newT
 }
 
-func (lc *LamportClock) UpdateClock(t int) int {
+func (lc *LamportClock) Update(t int) int {
 	lc.mu.Lock()
 	newT := max(t, lc.time) + 1
 	lc.time = newT
@@ -64,7 +64,7 @@ func receiveMessage(lc *LamportClock, port string) {
 			continue
 		}
 
-		newT := lc.UpdateClock(t)
+		newT := lc.Update(t)
 		fmt.Printf("\nMessage Received!!\nTime: %d\n\n", newT)
 		prompt()
 	}
@@ -77,7 +77,7 @@ func handleEvents(lc *LamportClock) {
 		var event, port string
 		switch fmt.Scan(&event); event {
 		case "c":
-			newT := lc.IncrementClock()
+			newT := lc.Increment()
 			fmt.Printf("Calculate Event Success!!\nTime: %d\n\n", newT)
 		case "s":
 			fmt.Print("Please type the destination port: ")
@@ -88,7 +88,7 @@ func handleEvents(lc *LamportClock) {
 				log.Println("Connection error: ", err)
 				continue
 			}
-			newT := lc.IncrementClock()
+			newT := lc.Increment()
 			fmt.Fprintf(conn, "%d\n", newT)
 			fmt.Printf("Sending Event Success!!\nTime: %d\n\n", newT)
 		default:
