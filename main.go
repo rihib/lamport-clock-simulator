@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"sync"
@@ -15,17 +16,17 @@ type LamportClock struct {
 func (lc *LamportClock) IncrementClock() int {
 	lc.mu.Lock()
 	lc.time++
-	updatedT := lc.time
+	newT := lc.time
 	lc.mu.Unlock()
-	return updatedT
+	return newT
 }
 
 func (lc *LamportClock) UpdateClock(t int) int {
 	lc.mu.Lock()
-	updatedT := max(t, lc.time) + 1
-	lc.time = updatedT
+	newT := max(t, lc.time) + 1
+	lc.time = newT
 	lc.mu.Unlock()
-	return updatedT
+	return newT
 }
 
 func main() {
@@ -45,7 +46,7 @@ func main() {
 func receiveMessage(lc *LamportClock, port string) {
 	ln, err := net.Listen("tcp", ":"+port)
 	if err != nil {
-		fmt.Println("Error listening: ", err)
+		log.Println("Error listening: ", err)
 		return
 	}
 	defer ln.Close()
@@ -54,7 +55,7 @@ func receiveMessage(lc *LamportClock, port string) {
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
-			fmt.Println("Error accepting: ", err)
+			log.Println("Error accepting: ", err)
 			continue
 		}
 
@@ -63,10 +64,8 @@ func receiveMessage(lc *LamportClock, port string) {
 			continue
 		}
 
-		sender := conn.RemoteAddr().String()
-		updatedT := lc.UpdateClock(t)
-		fmt.Printf("\nMessage Received from %s!!\n", sender)
-		fmt.Printf("Time: %d\n\n", updatedT)
+		newT := lc.UpdateClock(t)
+		fmt.Printf("\nMessage Received!!\nTime: %d\n\n", newT)
 		prompt()
 	}
 }
@@ -78,22 +77,22 @@ func handleEvents(lc *LamportClock) {
 		var event, port string
 		switch fmt.Scan(&event); event {
 		case "c":
-			updatedT := lc.IncrementClock()
-			fmt.Printf("Calculate Event Success!!\nTime: %d\n\n", updatedT)
+			newT := lc.IncrementClock()
+			fmt.Printf("Calculate Event Success!!\nTime: %d\n\n", newT)
 		case "s":
 			fmt.Print("Please type the destination port: ")
 			fmt.Scan(&port)
 			address := fmt.Sprintf("localhost:%s", port)
 			conn, err := net.Dial("tcp", address)
 			if err != nil {
-				fmt.Println("Connection error: ", err)
+				log.Println("Connection error: ", err)
 				continue
 			}
-			updatedT := lc.IncrementClock()
-			fmt.Fprintf(conn, "%d\n", updatedT)
-			fmt.Printf("Sending Event Success!!\nTime: %d\n\n", updatedT)
+			newT := lc.IncrementClock()
+			fmt.Fprintf(conn, "%d\n", newT)
+			fmt.Printf("Sending Event Success!!\nTime: %d\n\n", newT)
 		default:
-			fmt.Print("Error: Please type 'c' or 's'")
+			log.Print("Error: Please type 'c' or 's'")
 		}
 	}
 }
