@@ -10,16 +10,16 @@ Lamport Clocks are used to establish a partial ordering of events in a distribut
 
 ## How to use this implementation?
 
-This implementation simulates the operation of the Lamport clock with the CLI. There are two versions of the implementation, one in Go and the other in C. You can use either of them to simulate the Lamport clock.
+This implementation simulates the operation of the Lamport clock with the CLI.
 
 ### Setting up the environment
 
 ```bash
 git clone https://github.com/rihib/lamport-clock-simulator.git
 cd lamport-clock-simulator
-go run go/main.go 9000
-go run go/main.go 9001 // Open a new terminal
-go run go/main.go 9002 // Open a new terminal
+go run main.go 9000
+go run main.go 9001 // Open a new terminal
+go run main.go 9002 // Open a new terminal
 ```
 
 ### Running the simulation
@@ -28,7 +28,7 @@ You can send and receive messages and perform computation events and see how the
 
 ```bash
 // Terminal 1
-% go run go/main.go 9000
+% go run main.go 9000
 Please type event, c or s: c
 Calculate Event Success!!
 Time: 1
@@ -47,7 +47,7 @@ Please type event, c or s:
 
 ```bash
 // Terminal 2
-% go run go/main.go 9001
+% go run main.go 9001
 Please type event, c or s:
 Message Received!!
 Time: 4
